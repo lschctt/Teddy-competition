@@ -21,12 +21,14 @@ def Get_coco(filepath1, filepath2):
         data = f.readlines()
 
     first = 1  # 用于检测是不是标题行
+    t = 0
     for d in data:
         if first == 1:
             first = 0
         else:
             content = d.split(",")
-            filename = content[2]
+            filename = content[1]
+
             # 读取图片
             img = cv2.imread(filepath2 + filename)
             try:
@@ -44,11 +46,11 @@ def Get_coco(filepath1, filepath2):
                 }
                 json_dict['images'].append(image)
 
-                if content[4] != '无':    # 判断该图片上有没有检测的目标
-                    left_x = content[7].replace('"', '')
-                    left_y = content[8].replace('"', '')
-                    right_x = content[9].replace('"', '')
-                    right_y = content[10].replace('"', '')
+                if content[3] != '无':    # 判断该图片上有没有检测的目标
+                    left_x = content[6].replace('"', '')
+                    left_y = content[7].replace('"', '')
+                    right_x = content[8].replace('"', '')
+                    right_y = content[9].replace('"', '')
 
                     # 计算bbox里的x,y,w,h
                     x = int(left_x)
@@ -57,7 +59,7 @@ def Get_coco(filepath1, filepath2):
                     h = int(right_y) - int(left_y)
                     area = w * h
                     # 种类id
-                    category_id = int(content[3])
+                    category_id = int(content[2])
 
                     # 定义annotation
                     annotation = {
@@ -76,7 +78,7 @@ def Get_coco(filepath1, filepath2):
 
                     bnd_id += 1  # “框”id + 1
 
-                    supercategory = content[4]
+                    supercategory = content[3]
 
                     category = {
                         'supercategory': supercategory,  # 类别的名称
@@ -88,6 +90,8 @@ def Get_coco(filepath1, filepath2):
             except:
                 times += 1
                 print('file is error')
+            t = t + 1
+            print(t)
 
     json_fp = open("val.json", 'w')
     json_str = json.dumps(json_dict)
